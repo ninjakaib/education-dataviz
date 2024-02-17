@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Education Data Visualization</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+</head>
+<body>
+    <select id="major-dropdown">
+        <option>Select Major</option>
+    </select>
+    <select id="degree-dropdown">
+        <option>Select Degree</option>
+    </select>
+    <select id="ethnicity-dropdown">
+        <option>Select Ethnicity</option>
+    </select>
+    
+    <script src="script.js"></script>
+    
+    <p>Minimum Salary: <span id="min-salary"></span></p>
+    <p>Maximum Salary: <span id="max-salary"></span></p>
+
+    <svg id="salaryHistogram" width="600" height="400"></svg>
+
+</body>
+</html>
