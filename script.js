@@ -166,7 +166,87 @@ function drawHistogram(binCounts) {
         .text("Count");
 }
 
+function calculateJobCounts(filteredData) {
+    let jobCounts = {};
+    filteredData.forEach(d => {
+        if (d.job != null) {
+            jobCounts[d.job] = (jobCounts[d.job] || 0) + 1;
+        }
+    });
+    return jobCounts;
+}
 
+function drawBubbleChart(jobCounts) {
+    // Convert jobCounts object to array format suitable for D3
+    const data = Object.keys(jobCounts).map((job, index) => ({
+      id: job,
+      value: jobCounts[job]
+    }));
+  
+    // Dimensions of the chart
+    const width = 928;
+    const height = width;
+  
+    // Create the pack layout
+    const pack = d3.pack()
+      .size([width - 2, height - 2])
+      .padding(3);
+  
+    // Compute the hierarchy from the data and apply the pack layout
+    const root = pack(d3.hierarchy({ children: data }).sum(d => d.value));
+  
+    // Create a unique color scale
+    const colorScale = d3.scaleOrdinal()
+      .domain(data.map(d => d.id))
+      .range(d3.schemeTableau10);
+  
+    // Select the SVG container and set attributes
+    const svg = d3.select('#bubbleChart')
+      .attr('width', width)
+      .attr('height', height)
+      .attr("text-anchor", "middle");
+  
+    // Clear any previous SVG contents
+    svg.selectAll("*").remove();
+  
+    // Place each node (leaf) according to the layout’s x and y values
+    const node = svg.selectAll("g")
+      .data(root.leaves())
+      .join("g")
+        .attr("transform", d => `translate(${d.x + 1},${d.y + 1})`);
+  
+    // Add a filled circle for each node
+    node.append("circle")
+        .attr("fill-opacity", 0.7)
+        .attr("fill", d => colorScale(d.data.id))
+        .attr("r", d => d.r);
+  
+    // Add labels to each node, scaling the font size
+    node.append("text")
+        .attr("font-size", d => Math.max(10, d.r / 5)) // Adjust font size relative to radius
+        .selectAll("tspan")
+        .data(d => d.data.id.split(/(?=[A-Z][^A-Z])/g))
+        .join("tspan")
+          .attr("x", 0)
+          .attr("y", (d, i, nodes) => `${i - nodes.length / 2 + 0.8}em`)
+          .text(d => d);
+  
+    // Add tooltip functionality on mouseover
+    node.on("mouseover", function(event, d) {
+      d3.select(this).select('circle').attr('stroke', 'black');
+      svg.append("text")
+        .attr("id", "tooltip")
+        .attr("x", event.pageX)
+        .attr("y", event.pageY - 10)
+        .attr("text-anchor", "middle")
+        .text(`${d.data.id}: ${d.data.value}`);
+    })
+    .on("mouseout", function() {
+      d3.select(this).select('circle').attr('stroke', null);
+      d3.select("#tooltip").remove();
+    });
+  }
+  
 
 
 function updateVisualization() {
@@ -198,6 +278,11 @@ function updateVisualization() {
 
     // Now pass these binCounts to a function that draws the histogram
     drawHistogram(binCounts);
+
+    const jobCounts = calculateJobCounts(filteredData);
+
+    // Now pass these jobCounts to a function that draws the bubble chart
+    drawBubbleChart(jobCounts);
 }
 
 // Load data when the page loads
