@@ -3,7 +3,7 @@ let allData = [];
 // Function to load JSON data
 async function loadData() {
     try {
-        const response = await fetch('/data/highered.json'); // Update the path if necessary
+        const response = await fetch('./data/highered.json'); // Update the path if necessary
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
