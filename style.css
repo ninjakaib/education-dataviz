@@ -28,11 +28,12 @@
 
 
 body {
-    font-family: Arial, sans-serif;
+    font-family:'League Spartan', sans-serif;
     padding: 20px;
 }
 
 select {
+    font-family:'League Spartan', sans-serif;
     margin: 10px 0;
     padding: 10px;
     width: 200px;

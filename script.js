@@ -117,10 +117,11 @@ function drawHistogram(binCounts) {
             .attr("y", d => y(d))
             .attr("width", x.bandwidth())
             .attr("height", d => height - y(d))
-            .attr("fill", "#69b3a2")
+            .attr("fill", "#526D82")
             .on("mouseover", function(event, d) {
                 // Show the count when hovering
-                d3.select(this).attr('fill', '#2171b5');
+
+                d3.select(this).attr('fill', '#27374D');
                 const xPos = x.bandwidth() / 2 + parseFloat(d3.select(this).attr("x"));
                 const yPos = y(d);
                 chart.append("text")
@@ -128,11 +129,13 @@ function drawHistogram(binCounts) {
                     .attr("x", xPos)
                     .attr("y", yPos - 10)
                     .attr("text-anchor", "middle")
+                    .style("font-size", "12px")
+                    .style("fill", "#000")
                     .text(`Count: ${d}`);
             })
             .on("mouseout", function() {
                 // Revert the bar color and remove the tooltip
-                d3.select(this).attr('fill', '#69b3a2');
+                d3.select(this).attr('fill', '#526D82');
                 chart.select("#tooltip").remove();
             });
 
@@ -154,8 +157,9 @@ function drawHistogram(binCounts) {
     svg.append("text")
         .attr("text-anchor", "end")
         .attr("x", width / 2 + margin.left)
-        .attr("y", height + margin.top + 50) // Move the label closer to the axis
-        .text("Salary");
+        .attr("y", height + margin.top + 60) // Move the label closer to the axis
+        .text("Salary")
+        .style("font-size","16px");
 
     // Add y-axis label
     svg.append("text")
@@ -186,6 +190,7 @@ function drawBubbleChart(jobCounts) {
     // Dimensions of the chart
     const width = 928;
     const height = width;
+    const padding = 40;
   
     // Create the pack layout
     const pack = d3.pack()
@@ -198,39 +203,83 @@ function drawBubbleChart(jobCounts) {
     // Create a unique color scale
     const colorScale = d3.scaleOrdinal()
       .domain(data.map(d => d.id))
-      .range(d3.schemeTableau10);
+      .range(["#274847", "#274249", "#27374D", "#93AA88", "#5D7C67", "#274D45"]);
   
     // Select the SVG container and set attributes
     const svg = d3.select('#bubbleChart')
       .attr('width', width)
       .attr('height', height)
+      .attr("viewBox", [0, 0, width, height])
       .attr("text-anchor", "middle");
   
     // Clear any previous SVG contents
     svg.selectAll("*").remove();
+
+    // set chart title
+    svg.append("text")
+        .attr("x", width/2)
+        .attr("y", padding)
+        .attr("text-anchor", "middle")
+        .style("font-size", "20px")
+        .text("Most Popular Employment Fields")
+  
   
     // Place each node (leaf) according to the layout’s x and y values
     const node = svg.selectAll("g")
       .data(root.leaves())
-      .join("g")
-        .attr("transform", d => `translate(${d.x + 1},${d.y + 1})`);
-  
+      .enter();
+
+
+    
     // Add a filled circle for each node
     node.append("circle")
+        .attr("class", "circle")
+        .attr("r", function(d){ return d.r; })
+        .attr("cx", function(d){ return d.x; })
+        .attr("cy", function(d){ return d.y; })
         .attr("fill-opacity", 0.7)
         .attr("fill", d => colorScale(d.data.id))
         .attr("r", d => d.r);
   
     // Add labels to each node, scaling the font size
     node.append("text")
-        .attr("font-size", d => Math.max(10, d.r / 5)) // Adjust font size relative to radius
-        .selectAll("tspan")
-        .data(d => d.data.id.split(/(?=[A-Z][^A-Z])/g))
-        .join("tspan")
-          .attr("x", 0)
-          .attr("y", (d, i, nodes) => `${i - nodes.length / 2 + 0.8}em`)
-          .text(d => d);
+        .attr("x", function(d) {
+            return d.x;
+          })
+        .attr("y", function(d, i, nodes) {
+            return d.y + 5;
+          })
+        .attr("text-anchor", "middle")
+        .attr("font-size", d => Math.max(10, d.r / 8))
+        .text(function(d) {
+            return d.data["id"];
+          })
+        .style("fill", "#27323F")
+        .each(wrap);// Wrap text to avoid spilling over the bubble
   
+    function wrap(d){
+        var text = d3.select(this),
+        width = d.r * 2,
+        x = d.x,
+        y = d.y,
+        words = text.text().split(/\s+/).reverse(),
+        word,
+        line = [],
+        lineNumber = 0,
+        lineHeight = 1.1,
+        tspan = text.text(null).append("tspan").attr("x", x).attr("y", y);
+        while (word = words.pop()) {
+        line.push(word);
+        tspan.text(line.join(" "));
+        if (tspan.node().getComputedTextLength() > width) {
+            line.pop();
+            tspan.text(line.join(" "));
+            line = [word];
+            tspan = text.append("tspan").attr("x", x).attr("y", y).attr("dy", ++lineNumber * lineHeight + "em").text(word);
+        }}
+    };
+
+
     // Add tooltip functionality on mouseover
     node.on("mouseover", function(event, d) {
       d3.select(this).select('circle').attr('stroke', 'black');
