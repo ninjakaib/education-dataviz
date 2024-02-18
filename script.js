@@ -62,6 +62,27 @@ function setupDropdownListeners() {
     document.getElementById('ethnicity-dropdown').addEventListener('change', updateVisualization);
 }
 
+function updateRecordCount(filteredData) {
+    const countElement = document.getElementById('record-count');
+    countElement.textContent = filteredData.length;
+}
+
+function calculateBinCounts(filteredData) {
+    let binCounts = new Array(16).fill(0);
+    filteredData.forEach(d => {
+        if (d.salary != null) {
+            if (d.salary >= 150000) {
+                // All salaries of 150k and above
+                binCounts[15]++;
+            } else {
+                // Salaries from 0 to 149k
+                binCounts[Math.floor(d.salary / 10000)]++;
+            }
+        }
+    });
+    return binCounts;
+}
+
 function updateVisualization() {
     const selectedMajor = document.getElementById('major-dropdown').value;
     const selectedDegree = document.getElementById('degree-dropdown').value;
@@ -77,6 +98,8 @@ function updateVisualization() {
         (selectedDegree === '' || (d.degree && d.degree === selectedDegree)) &&
         (selectedEthnicity === '' || (d.ethnicity && d.ethnicity === selectedEthnicity))
     );
+
+    updateRecordCount(filteredData);
 
     // Filter out null values and then map to salaries
     const salaries = filteredData.filter(d => d.salary != null).map(d => d.salary);
@@ -96,6 +119,11 @@ function updateVisualization() {
         document.getElementById('min-salary').textContent = 'N/A';
         document.getElementById('max-salary').textContent = 'N/A';
     }
+
+    const binCounts = calculateBinCounts(filteredData);
+
+    // Now pass these binCounts to a function that draws the histogram
+    drawHistogram(binCounts);
 }
 
 // Load data when the page loads

@@ -8,22 +8,18 @@
     <script src="https://d3js.org/d3.v6.min.js"></script>
 </head>
 <body>
-    <select id="major-dropdown">
-        <option>Select Major</option>
-    </select>
-    <select id="degree-dropdown">
-        <option>Select Degree</option>
-    </select>
-    <select id="ethnicity-dropdown">
-        <option>Select Ethnicity</option>
-    </select>
+    <select id="major-dropdown"></select>
+    <select id="degree-dropdown"></select>
+    <select id="ethnicity-dropdown"></select>
     
     <script src="script.js"></script>
     
     <p>Minimum Salary: <span id="min-salary"></span></p>
     <p>Maximum Salary: <span id="max-salary"></span></p>
+    <p>Total Records: <span id="record-count"></span></p>
 
-    <svg id="salaryHistogram" width="600" height="400"></svg>
+    <svg id="salaryHistogram" width="800" height="400"></svg>
+
 
 </body>
 </html>
