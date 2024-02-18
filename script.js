@@ -62,22 +62,23 @@ function setupDropdownListeners() {
     document.getElementById('ethnicity-dropdown').addEventListener('change', updateVisualization);
 }
 
+// selected values
+const selectedMajor = document.getElementById('major-dropdown').value;
+const selectedDegree = document.getElementById('degree-dropdown').value;
+const selectedEthnicity = document.getElementById('ethnicity-dropdown').value;
+
+// Log selected values to ensure they are captured correctly
+console.log("Selected Major:", selectedMajor);
+console.log("Selected Degree:", selectedDegree);
+console.log("Selected Ethnicity:", selectedEthnicity);
+
+const filteredData = allData.filter(d =>
+    (selectedMajor === '' || (d.major && d.major === selectedMajor)) &&
+    (selectedDegree === '' || (d.degree && d.degree === selectedDegree)) &&
+    (selectedEthnicity === '' || (d.ethnicity && d.ethnicity === selectedEthnicity))
+);
+
 function updateVisualization() {
-    const selectedMajor = document.getElementById('major-dropdown').value;
-    const selectedDegree = document.getElementById('degree-dropdown').value;
-    const selectedEthnicity = document.getElementById('ethnicity-dropdown').value;
-
-    // Log selected values to ensure they are captured correctly
-    console.log("Selected Major:", selectedMajor);
-    console.log("Selected Degree:", selectedDegree);
-    console.log("Selected Ethnicity:", selectedEthnicity);
-
-    const filteredData = allData.filter(d =>
-        (selectedMajor === '' || (d.major && d.major === selectedMajor)) &&
-        (selectedDegree === '' || (d.degree && d.degree === selectedDegree)) &&
-        (selectedEthnicity === '' || (d.ethnicity && d.ethnicity === selectedEthnicity))
-    );
-
     // Filter out null values and then map to salaries
     const salaries = filteredData.filter(d => d.salary != null).map(d => d.salary);
 
@@ -96,7 +97,13 @@ function updateVisualization() {
         document.getElementById('min-salary').textContent = 'N/A';
         document.getElementById('max-salary').textContent = 'N/A';
     }
-}
+
+
+    // Make salary histogram
+    
+        
+
+   }
 
 // Load data when the page loads
 window.addEventListener('DOMContentLoaded', (event) => {
