@@ -83,12 +83,12 @@ function calculateBinCounts(filteredData) {
     return binCounts;
 }
 
-
 function drawHistogram(binCounts) {
     const svg = d3.select('#salaryHistogram');
     const margin = {top: 10, right: 30, bottom: 30, left: 40};
-    const width = svg.attr('width') - margin.left - margin.right;
-    const height = svg.attr('height') - margin.top - margin.bottom;
+    const width = +svg.attr('width') - margin.left - margin.right;
+    const height = +svg.attr('height') - margin.top - margin.bottom;
+    const barPadding = 0.1;
     
     // Clear any previous SVG contents
     svg.selectAll("*").remove();
@@ -100,8 +100,8 @@ function drawHistogram(binCounts) {
     // Create the x scale
     const x = d3.scaleBand()
         .range([0, width])
-        .domain(binCounts.map((_, i) => i))
-        .padding(0.1);
+        .domain(binCounts.map((_, i) => i * 10000)) // scaleBand domain as salary ranges
+        .padding(barPadding);
 
     // Create the y scale
     const y = d3.scaleLinear()
@@ -109,25 +109,61 @@ function drawHistogram(binCounts) {
         .domain([0, d3.max(binCounts)]);
 
     // Append the rectangles for the bar chart
-    chart.selectAll(".bar")
+    const bar = chart.selectAll(".bar")
         .data(binCounts)
         .enter().append("rect")
             .attr("class", "bar")
-            .attr("x", (d, i) => x(i))
+            .attr("x", (d, i) => x(i * 10000))
             .attr("y", d => y(d))
             .attr("width", x.bandwidth())
             .attr("height", d => height - y(d))
-            .attr("fill", "#69b3a2");
+            .attr("fill", "#69b3a2")
+            .on("mouseover", function(event, d) {
+                // Show the count when hovering
+                d3.select(this).attr('fill', '#2171b5');
+                const xPos = x(i * 10000) + x.bandwidth() / 2;
+                const yPos = y(d);
+                svg.append("text")
+                    .attr("id", "tooltip")
+                    .attr("x", xPos)
+                    .attr("y", yPos - 10)
+                    .attr("text-anchor", "middle")
+                    .text(`Count: ${d}`);
+            })
+            .on("mouseout", function() {
+                // Revert the bar color and remove the tooltip
+                d3.select(this).attr('fill', '#69b3a2');
+                d3.select("#tooltip").remove();
+            });
 
     // Add the x-axis
     chart.append("g")
         .attr("transform", `translate(0,${height})`)
-        .call(d3.axisBottom(x));
+        .call(d3.axisBottom(x).tickFormat((d, i) => {
+            // Format the tick labels
+            return i === 15 ? '150k+' : (i * 10) + "k - " + ((i + 1) * 10) + "k";
+        }).tickSizeOuter(0));
 
     // Add the y-axis
     chart.append("g")
         .call(d3.axisLeft(y));
+
+    // Add x-axis label
+    svg.append("text")
+        .attr("text-anchor", "end")
+        .attr("x", width / 2 + margin.left)
+        .attr("y", height + margin.top + 20)
+        .text("Salary");
+
+    // Add y-axis label
+    svg.append("text")
+        .attr("text-anchor", "end")
+        .attr("transform", "rotate(-90)")
+        .attr("y", margin.left - 40)
+        .attr("x", -margin.top - height / 2 + 20)
+        .text("Count");
 }
+
 
 
 function updateVisualization() {
