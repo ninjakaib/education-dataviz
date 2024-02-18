@@ -85,11 +85,11 @@ function calculateBinCounts(filteredData) {
 
 function drawHistogram(binCounts) {
     const svg = d3.select('#salaryHistogram');
-    const margin = {top: 10, right: 30, bottom: 30, left: 40};
+    const margin = { top: 10, right: 30, bottom: 70, left: 60 }; // Adjusted margins
     const width = +svg.attr('width') - margin.left - margin.right;
     const height = +svg.attr('height') - margin.top - margin.bottom;
     const barPadding = 0.1;
-    
+
     // Clear any previous SVG contents
     svg.selectAll("*").remove();
 
@@ -100,7 +100,7 @@ function drawHistogram(binCounts) {
     // Create the x scale
     const x = d3.scaleBand()
         .range([0, width])
-        .domain(binCounts.map((_, i) => i * 10000)) // scaleBand domain as salary ranges
+        .domain(binCounts.map((_, i) => i === binCounts.length - 1 ? '150k+' : `${i * 10}k - ${(i + 1) * 10}k`)) // Adjusted domain for last label
         .padding(barPadding);
 
     // Create the y scale
@@ -109,11 +109,11 @@ function drawHistogram(binCounts) {
         .domain([0, d3.max(binCounts)]);
 
     // Append the rectangles for the bar chart
-    const bar = chart.selectAll(".bar")
+    chart.selectAll(".bar")
         .data(binCounts)
         .enter().append("rect")
             .attr("class", "bar")
-            .attr("x", (d, i) => x(i * 10000))
+            .attr("x", (d, i) => x(i === binCounts.length - 1 ? '150k+' : `${i * 10}k - ${(i + 1) * 10}k`))
             .attr("y", d => y(d))
             .attr("width", x.bandwidth())
             .attr("height", d => height - y(d))
@@ -121,9 +121,9 @@ function drawHistogram(binCounts) {
             .on("mouseover", function(event, d) {
                 // Show the count when hovering
                 d3.select(this).attr('fill', '#2171b5');
-                const xPos = x(i * 10000) + x.bandwidth() / 2;
+                const xPos = x.bandwidth() / 2 + parseFloat(d3.select(this).attr("x"));
                 const yPos = y(d);
-                svg.append("text")
+                chart.append("text")
                     .attr("id", "tooltip")
                     .attr("x", xPos)
                     .attr("y", yPos - 10)
@@ -133,16 +133,18 @@ function drawHistogram(binCounts) {
             .on("mouseout", function() {
                 // Revert the bar color and remove the tooltip
                 d3.select(this).attr('fill', '#69b3a2');
-                d3.select("#tooltip").remove();
+                chart.select("#tooltip").remove();
             });
 
     // Add the x-axis
     chart.append("g")
         .attr("transform", `translate(0,${height})`)
-        .call(d3.axisBottom(x).tickFormat((d, i) => {
-            // Format the tick labels
-            return i === 15 ? '150k+' : (i * 10) + "k - " + ((i + 1) * 10) + "k";
-        }).tickSizeOuter(0));
+        .call(d3.axisBottom(x))
+        .selectAll("text")
+            .attr("text-anchor", "end")
+            .attr("dx", "-.8em")
+            .attr("dy", ".15em")
+            .attr("transform", "rotate(-40)"); // Rotate the labels to prevent overlap
 
     // Add the y-axis
     chart.append("g")
@@ -152,17 +154,18 @@ function drawHistogram(binCounts) {
     svg.append("text")
         .attr("text-anchor", "end")
         .attr("x", width / 2 + margin.left)
-        .attr("y", height + margin.top + 20)
+        .attr("y", height + margin.top + 50) // Move the label closer to the axis
         .text("Salary");
 
     // Add y-axis label
     svg.append("text")
         .attr("text-anchor", "end")
         .attr("transform", "rotate(-90)")
-        .attr("y", margin.left - 40)
+        .attr("y", margin.left / 4) // Adjusted position
         .attr("x", -margin.top - height / 2 + 20)
         .text("Count");
 }
+
 
 
 
