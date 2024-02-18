@@ -6,7 +6,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Education Data Visualization</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <style>
+        .arc {
+           transition: opacity 0.3s ease-in-out, stroke-opacity 0.3s ease-in-out;
+       }
+
+       #tooltip {
+           position: absolute;
+           background-color: yellow;
+           padding: 8px;
+           border: 1px solid #ccc;
+           border-radius: 5px;
+           font-size: 12px;
+           pointer-events: none;
+           opacity: 0;
+       }
+   </style>
+    <script src="https://d3js.org/d3.v6.min.js">
+        const tooltip = d3.select('#tooltip');
+    </script>
+    
 </head>
 <body>
     <header style="background-color:#9DB2BF;padding:50px;margin:0px">
@@ -21,9 +40,13 @@
     <script src="script.js"></script>
     
     <p>Total Records: <span id="record-count"></span></p>
+    <div id="tooltip" class="tooltip"></div>
 
     <svg id="salaryHistogram" width="800" height="500"></svg>
     <svg id="bubbleChart"></svg>
+    <svg id="pieChart" width="800" height="1000"></svg>
+
+
 
 
 

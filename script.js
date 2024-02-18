@@ -180,6 +180,16 @@ function calculateJobCounts(filteredData) {
     return jobCounts;
 }
 
+function calculateEmployedCounts(filteredData) {
+    let employedStatus = {};
+    filteredData.forEach(d => {
+        if (d.status != null) {
+            employedStatus[d.status] = (employedStatus[d.status] || 0) + 1;
+        }
+    });
+    return employedStatus;
+}
+
 function drawBubbleChart(jobCounts) {
     // Convert jobCounts object to array format suitable for D3
     const data = Object.keys(jobCounts).map((job, index) => ({
@@ -295,6 +305,90 @@ function drawBubbleChart(jobCounts) {
       d3.select("#tooltip").remove();
     });
   }
+
+
+
+function drawPieChart(data) {
+    const svg = d3.select('#pieChart');
+    const width = +svg.attr('width');
+    const height = +svg.attr('height');
+    const radius = Math.min(width, height) / 2;
+
+    // Create a pie chart layout
+    const pie = d3.pie().value(d => d.value);
+
+    // Create an arc generator
+    const arc = d3.arc()
+        .innerRadius(0)
+        .outerRadius(radius);
+
+    // Generate pie chart data
+    const pieData = pie(Object.entries(data).map(([category, value]) => ({ category, value })));
+
+    // Create a group element for the pie chart
+    const chart = svg.append('g')
+        .attr('transform', `translate(${width / 2},${height / 2})`);
+
+    // Append the arcs for the pie chart
+    const arcs = chart.selectAll('.arc')
+        .data(pieData)
+        .enter().append('g')
+            .attr('class', 'arc')
+            .style('opacity', 1) // Set initial opacity to 1
+
+    arcs.append('path')
+        .attr('d', arc)
+        .attr('fill', (d, i) => d3.schemeCategory10[i])
+        .attr('stroke', 'black') // Set initial stroke color to black
+        .attr('stroke-width', 2) // Set initial stroke width
+        .on('mouseover', function (event, d) {
+            // Highlight the hovered arc
+            d3.select(this)
+                .transition()
+                .style('opacity', 0.5)
+                .attr('stroke-width', 4)
+                .attr('stroke', 'black'); // Change stroke color
+
+            // Show tooltip
+            const tooltip = d3.select('#tooltip');
+            tooltip.transition()
+                .duration(200)
+                .style('opacity', 0.9);
+
+            // Set tooltip content
+            tooltip.html(`${d.data.category}: ${d.data.value}`)
+                .style('left', (event.pageX + 10) + 'px')
+                .style('top', (event.pageY - 20) + 'px');
+        })
+        .on('mousemove', function (event) {
+            // Move tooltip smoothly with the mouse
+            d3.select('#tooltip')
+                .style('left', (event.pageX + 10) + 'px')
+                .style('top', (event.pageY - 20) + 'px');
+        })
+        .on('mouseout', function () {
+            // Restore the opacity and stroke of all arcs on mouseout
+            d3.select(this)
+                .transition()
+                .style('opacity', 1)
+                .attr('stroke-width', 2)
+                .attr('stroke', 'black');
+
+            // Hide tooltip
+            d3.select('#tooltip')
+                .transition()
+                .duration(500)
+                .style('opacity', 0);
+        });
+
+    // Add category names and percentages as text labels for larger slices
+    arcs.filter(d => d.endAngle - d.startAngle > 0.2) // Only show labels for slices larger than 0.2 radians
+        .append('text')
+            .attr('transform', d => `translate(${arc.centroid(d)}) rotate(${(d.startAngle + d.endAngle) * 90 / Math.PI - 90})`)
+            .attr('dy', '0.35em') // Adjust vertical alignment
+            .attr('text-anchor', 'middle')
+            .text(d => `${d.data.category}: ${d3.format('.1%')(d.data.value / d3.sum(Object.values(data)))}`);
+}
   
 
 
@@ -332,6 +426,13 @@ function updateVisualization() {
 
     // Now pass these jobCounts to a function that draws the bubble chart
     drawBubbleChart(jobCounts);
+
+    const employeeCounts = calculateEmployedCounts(filteredData);
+    console.log(employeeCounts);
+    drawPieChart(employeeCounts);
+
+
+    console.log("hello");
 }
 
 // Load data when the page loads
