@@ -130,7 +130,7 @@ function drawHistogram(binCounts) {
                     .attr("y", yPos - 10)
                     .attr("text-anchor", "middle")
                     .style("font-size", "12px")
-                    .style("fill", "#000")
+                    // .style("fill", "#000")
                     .text(`Count: ${d}`);
             })
             .on("mouseout", function() {
@@ -205,7 +205,7 @@ function drawBubbleChart(jobCounts) {
     // Create the pack layout
     const pack = d3.pack()
       .size([width - 2, height - 2])
-      .padding(3);
+      .padding(4);
   
     // Compute the hierarchy from the data and apply the pack layout
     const root = pack(d3.hierarchy({ children: data }).sum(d => d.value));
@@ -224,14 +224,6 @@ function drawBubbleChart(jobCounts) {
   
     // Clear any previous SVG contents
     svg.selectAll("*").remove();
-
-    // set chart title
-    svg.append("text")
-        .attr("x", width/2)
-        .attr("y", padding)
-        .attr("text-anchor", "middle")
-        .style("font-size", "20px")
-        .text("Most Popular Employment Fields")
   
   
     // Place each node (leaf) according to the layout’s x and y values
@@ -257,10 +249,19 @@ function drawBubbleChart(jobCounts) {
             return d.x;
           })
         .attr("y", function(d, i, nodes) {
-            return d.y + 5;
+            return d.y + 4;
           })
         .attr("text-anchor", "middle")
-        .attr("font-size", d => Math.max(10, d.r / 8))
+        .attr("font-size", function(d, i, nodes) {
+            if (d.r <=26){
+                return 0; // don't show text for very small bubbles
+            }
+            else {
+                return Math.max(10, d.r / 8);
+            }
+
+        }
+        )
         .text(function(d) {
             return d.data["id"];
           })
