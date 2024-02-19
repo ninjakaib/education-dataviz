@@ -130,7 +130,6 @@ function drawHistogram(binCounts) {
                     .attr("y", yPos - 10)
                     .attr("text-anchor", "middle")
                     .style("font-size", "12px")
-                    // .style("fill", "#000")
                     .text(`Count: ${d}`);
             })
             .on("mouseout", function() {
@@ -198,7 +197,7 @@ function drawBubbleChart(jobCounts) {
     }));
   
     // Dimensions of the chart
-    const width = 928;
+    const width = 750;
     const height = width;
     const padding = 40;
   
@@ -230,10 +229,8 @@ function drawBubbleChart(jobCounts) {
       .data(root.leaves())
       .enter();
 
-
-    
-    // Add a filled circle for each node
-    node.append("circle")
+    // add a filled circle for each node
+    node.append("circle") 
         .attr("class", "circle")
         .attr("r", function(d){ return d.r; })
         .attr("cx", function(d){ return d.x; })
@@ -241,9 +238,9 @@ function drawBubbleChart(jobCounts) {
         .attr("fill-opacity", 0.7)
         .attr("fill", d => colorScale(d.data.id))
         .attr("r", d => d.r);
-  
+
     // Add labels to each node, scaling the font size
-    node.append("text")
+    node.append("text") 
         .attr("x", function(d) {
             return d.x;
           })
@@ -257,15 +254,25 @@ function drawBubbleChart(jobCounts) {
             }
             else {
                 return Math.max(10, d.r / 8);
-            }
-
-        }
-        )
+            }})
         .text(function(d) {
             return d.data["id"];
           })
         .style("fill", "#27323F")
-        .each(wrap);// Wrap text to avoid spilling over the bubble
+        .each(wrap) // Wrap text to avoid spilling over the bubble
+      .on("mouseover", function(d){ // Tooltips
+            d3.select(this).style('font-weight', "bold"); // bold on mouseover
+
+            // show job category on hover for small bubbles? something is wrong w the if statement
+            if (d3.select("circle").r <=26){ 
+                d3.select(this).attr('font-size', 10);
+            }
+        })
+      .on("mouseout", function(d){
+            d3.select(this).style('font-weight', "normal"); // return to normal on mouseout
+
+      });
+
   
     function wrap(d){
         var text = d3.select(this),
@@ -288,6 +295,7 @@ function drawBubbleChart(jobCounts) {
             tspan = text.append("tspan").attr("x", x).attr("y", y).attr("dy", ++lineNumber * lineHeight + "em").text(word);
         }}
     };
+
 
 
     // Add tooltip functionality on mouseover
@@ -338,7 +346,7 @@ function drawPieChart(data) {
 
     arcs.append('path')
         .attr('d', arc)
-        .attr('fill', (d, i) => ["#3a5273", "#3e7275", "#93aa88"][i])
+        .attr('fill', (d, i) => ["#526D82", "#3e7275", "#93aa88"][i])
         .attr('stroke', "#27323F") // Set initial stroke color to black
         .attr('stroke-width', 2) // Set initial stroke width
         .on('mouseover', function (event, d) {
