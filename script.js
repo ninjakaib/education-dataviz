@@ -104,6 +104,7 @@ function drawHistogram(binCounts) {
         .padding(barPadding);
 
     // Create the y scale
+    
     const y = d3.scaleLinear()
         .range([height, 0])
         .domain([0, d3.max(binCounts)]);
@@ -356,8 +357,14 @@ function drawBubbleChart(jobCounts) {
             // Show tooltip
             const tooltip = d3.select('#tooltip');
             tooltip.transition()
-                .duration(200)
-                .style('opacity', 0.9);
+            .duration(200)
+            .style('opacity', 0.9)
+            .style('position', 'absolute')
+            .style('background-color', 'yellow')
+            .style('padding', '8px')
+            .style('border', '1px solid #ccc')
+            .style('border-radius', '5px')
+            .style('font-size', '12px');
 
             // Set tooltip content
             tooltip.html(`${d.data.category}: ${d.data.value}`)

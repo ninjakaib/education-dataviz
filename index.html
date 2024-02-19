@@ -11,23 +11,16 @@
            transition: opacity 0.3s ease-in-out, stroke-opacity 0.3s ease-in-out;
        }
 
-       #tooltip {
-           position: absolute;
-           background-color: yellow;
-           padding: 8px;
-           border: 1px solid #ccc;
-           border-radius: 5px;
-           font-size: 12px;
-           pointer-events: none;
-           opacity: 0;
-       }
    </style>
-    <script src="https://d3js.org/d3.v6.min.js">
-        const tooltip = d3.select('#tooltip');
-    </script>
+       <script src="https://d3js.org/d3.v6.min.js"></script>
+
+    
     
 </head>
 <body>
+    <script>
+        const tooltip = d3.select('#tooltip');
+    </script>
     <header style="background-color:#9DB2BF;padding:50px;margin:0px">
         <h1 >Oh, the Places You'll Go!</h1>
         <h2>What are the most common jobs for people in your field after graduation? How much are they paid? Pick your major and find out!</h2>
@@ -47,7 +40,7 @@
     <h2 style="font-family:'League Spartan';font-size:22px;padding:30px">What Are the Most Popular Employment Fields?</h2>
     <svg id="bubbleChart" style="border:400px"></svg>
     <h2 style="font-family:'League Spartan';font-size:22px;padding:30px">What Percentage are Employed?</h2>
-    <svg id="pieChart" width="100%" height="800"></svg>
+    <svg id="pieChart" width="650" height="800"></svg>
 
 
 
