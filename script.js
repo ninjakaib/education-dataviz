@@ -219,7 +219,6 @@ function drawBubbleChart(jobCounts) {
     const svg = d3.select('#bubbleChart')
       .attr('width', width)
       .attr('height', height)
-      .attr("viewBox", [0, 0, width, height])
       .attr("text-anchor", "middle");
   
     // Clear any previous SVG contents
@@ -292,19 +291,19 @@ function drawBubbleChart(jobCounts) {
 
 
     // Add tooltip functionality on mouseover
-    node.on("mouseover", function(event, d) {
-      d3.select(this).select('circle').attr('stroke', 'black');
-      svg.append("text")
-        .attr("id", "tooltip")
-        .attr("x", event.pageX)
-        .attr("y", event.pageY - 10)
-        .attr("text-anchor", "middle")
-        .text(`${d.data.id}: ${d.data.value}`);
-    })
-    .on("mouseout", function() {
-      d3.select(this).select('circle').attr('stroke', null);
-      d3.select("#tooltip").remove();
-    });
+    // node.on("mouseover", function(event, d) {
+    //   d3.select(this).select('circle').attr('stroke', 'black');
+    //   svg.append("text")
+    //     .attr("id", "tooltip")
+    //     .attr("x", event.pageX)
+    //     .attr("y", event.pageY - 10)
+    //     .attr("text-anchor", "middle")
+    //     .text(`${d.data.id}: ${d.data.value}`);
+    // })
+    // .on("mouseout", function() {
+    //   d3.select(this).select('circle').attr('stroke', null);
+    //   d3.select("#tooltip").remove();
+    // });
   }
 
 
@@ -339,8 +338,8 @@ function drawPieChart(data) {
 
     arcs.append('path')
         .attr('d', arc)
-        .attr('fill', (d, i) => d3.schemeCategory10[i])
-        .attr('stroke', 'black') // Set initial stroke color to black
+        .attr('fill', (d, i) => ["#3a5273", "#3e7275", "#93aa88"][i])
+        .attr('stroke', "#27323F") // Set initial stroke color to black
         .attr('stroke-width', 2) // Set initial stroke width
         .on('mouseover', function (event, d) {
             // Highlight the hovered arc
@@ -373,7 +372,7 @@ function drawPieChart(data) {
                 .transition()
                 .style('opacity', 1)
                 .attr('stroke-width', 2)
-                .attr('stroke', 'black');
+                .attr('stroke', '#27323F');
 
             // Hide tooltip
             d3.select('#tooltip')
