@@ -308,18 +308,22 @@ function drawBubbleChart(jobCounts) {
 
 
 
-function drawPieChart(data) {
+  function drawPieChart(data) {
     const svg = d3.select('#pieChart');
     const width = +svg.attr('width');
     const height = +svg.attr('height');
     const radius = Math.min(width, height) / 2;
+    const innerRadius = radius * 0.6; // Set inner radius for the donut chart
+
+    // Clear any previous SVG contents
+    svg.selectAll("*").remove();
 
     // Create a pie chart layout
     const pie = d3.pie().value(d => d.value);
 
     // Create an arc generator
     const arc = d3.arc()
-        .innerRadius(0)
+        .innerRadius(innerRadius)
         .outerRadius(radius);
 
     // Generate pie chart data
@@ -334,7 +338,7 @@ function drawPieChart(data) {
         .data(pieData)
         .enter().append('g')
             .attr('class', 'arc')
-            .style('opacity', 1) // Set initial opacity to 1
+            .style('opacity', 1); // Set initial opacity to 1
 
     arcs.append('path')
         .attr('d', arc)
@@ -381,15 +385,61 @@ function drawPieChart(data) {
                 .style('opacity', 0);
         });
 
-    // Add category names and percentages as text labels for larger slices
-    arcs.filter(d => d.endAngle - d.startAngle > 0.2) // Only show labels for slices larger than 0.2 radians
-        .append('text')
-            .attr('transform', d => `translate(${arc.centroid(d)}) rotate(${(d.startAngle + d.endAngle) * 90 / Math.PI - 90})`)
-            .attr('dy', '0.35em') // Adjust vertical alignment
-            .attr('text-anchor', 'middle')
-            .text(d => `${d.data.category}: ${d3.format('.1%')(d.data.value / d3.sum(Object.values(data)))}`);
+    // Add text labels above the arcs
+    const labelArc = d3.arc()
+        .innerRadius(radius * 0.85)
+        .outerRadius(radius * 0.85);
+
+    const text = chart.selectAll('.label')
+    .data(pieData)
+    .enter().append('text')
+        .attr('class', 'label')
+        .attr('transform', function(d) {
+            const c = labelArc.centroid(d);
+            return `translate(${c[0] * 1.2},${c[1] * 1.2})`;
+        })
+        .attr('dy', '0.35em') // Adjust vertical alignment
+        .attr('text-anchor', d => (d.startAngle + d.endAngle) / 2 < Math.PI ? 'start' : 'end')
+        .style('font-size', '20px')
+        .text(d => `${d.data.category}: ${d3.format('.1%')(d.data.value / d3.sum(Object.values(data)))}`);
+
+
+    const lines = arcs.append('line')
+    .attr('class', 'line')
+    .attr('x1', function(d) {
+        const c = labelArc.centroid(d);
+        return c[0] * 1.2;
+    })
+    .attr('y1', function(d) {
+        const c = labelArc.centroid(d);
+        return c[1] * 1.2;
+    })
+    .attr('x2', function(d) {
+        const c = arc.centroid(d);
+        return c[0];
+    })
+    .attr('y2', function(d) {
+        const c = arc.centroid(d);
+        return c[1];
+    })
+    .attr('stroke', 'black')
+    .attr('stroke-width', 1)
+    .attr('fill', 'none');
+    // Add a center circle with the total number
+    chart.append('circle')
+        .attr('cx', 0)
+        .attr('cy', 0)
+        .attr('r', innerRadius)
+        .attr('fill', '#ffffff') // Set fill color for the center circle
+
+    // Add text for the total number in the center circle
+    chart.append('text')
+        .attr('text-anchor', 'middle')
+        .attr('dy', '0.35em')
+        .style('font-size', '30px')
+        .text(`Total number: ${d3.sum(Object.values(data))}`);
 }
-  
+
 
 
 function updateVisualization() {
