@@ -227,47 +227,80 @@ function drawBubbleChart(jobCounts) {
   
   
     // Place each node (leaf) according to the layout’s x and y values
-    const node = svg.selectAll("g")
-      .data(root.leaves())
-      .enter();
-
-
-    
-    // Add a filled circle for each node
-    node.append("circle")
-        .attr("class", "circle")
-        .attr("r", function(d){ return d.r; })
-        .attr("cx", function(d){ return d.x; })
-        .attr("cy", function(d){ return d.y; })
-        .attr("fill-opacity", 0.7)
-        .attr("fill", d => colorScale(d.data.id))
-        .attr("r", d => d.r);
+const node = svg.selectAll("g")
+.data(root.leaves())
+.enter()
+.append("g") // Group for each node
+.on("mouseover", function(d) {
+  d3.select(this)
+    .selectAll(".circle") // Select all circles within the group
+    .transition().duration(200)
+    .attr("fill-opacity", 1); // Change opacity on mouseover
   
-    // Add labels to each node, scaling the font size
-    node.append("text")
-        .attr("x", function(d) {
-            return d.x;
-          })
-        .attr("y", function(d, i, nodes) {
-            return d.y + 4;
-          })
-        .attr("text-anchor", "middle")
-        .attr("font-size", function(d, i, nodes) {
-            if (d.r <=26){
-                return 0; // don't show text for very small bubbles
-            }
-            else {
-                return Math.max(10, d.r / 8);
-            }
-
-        }
-        )
-        .text(function(d) {
-            return d.data["id"];
-          })
-        .style("fill", "#27323F")
-        .each(wrap);// Wrap text to avoid spilling over the bubble
+  d3.select(this)
+    .selectAll("text") // Select all text elements within the group
+    .style("fill", "#000000"); // Change text color on mouseover
+})
+.on("mouseout", function(d) {
+  d3.select(this)
+    .selectAll(".circle") // Select all circles within the group
+    .transition().duration(200)
+    .attr("fill-opacity", 0.7); // Reset opacity on mouseout
   
+  d3.select(this)
+    .selectAll("text") // Select all text elements within the group
+    .style("fill", "#27323F"); // Reset text color on mouseout
+});
+
+// Add a filled circle for each node
+node.append("circle")
+  .attr("class", "circle")
+  .attr("r", function(d){ return d.r; })
+  .attr("cx", function(d){ return d.x; })
+  .attr("cy", function(d){ return d.y; })
+  .attr("fill-opacity", 0.7)
+  .attr("fill", d => colorScale(d.data.id))
+  .attr("r", d => d.r)
+  .on("mouseover", function(d) {
+    tooltip.transition().duration(200).style("opacity", 0.9);
+    tooltip.html(`${d.data.id}: ${d.data.value}`)
+      .style("left", (d3.event.pageX) + "px")
+      .style("top", (d3.event.pageY - 28) + "px");
+  })
+  .on("mouseout", function(d) {
+    tooltip.transition().duration(500).style("opacity", 0);
+  });
+
+// Add labels to each node, scaling the font size
+node.append("text")
+  .attr("x", function(d) {
+      return d.x;
+  })
+  .attr("y", function(d, i, nodes) {
+      return d.y + 4;
+  })
+  .attr("text-anchor", "middle")
+  .attr("font-size", function(d, i, nodes) {
+      if (d.r <=26){
+          return 0; // don't show text for very small bubbles
+      }
+      else {
+          return Math.max(10, d.r / 8);
+      }
+  })
+  .text(function(d) {
+      return d.data["id"];
+  })
+  .style("fill", "#27323F")
+  .each(wrap); // Apply the wrap function
+
+// Create a tooltip element
+const tooltip = d3.select("body")
+  .append("div")
+  .attr("class", "tooltip")
+  .style("opacity", 0);
+
+
     function wrap(d){
         var text = d3.select(this),
         width = d.r * 2,
@@ -291,20 +324,6 @@ function drawBubbleChart(jobCounts) {
     };
 
 
-    // Add tooltip functionality on mouseover
-    // node.on("mouseover", function(event, d) {
-    //   d3.select(this).select('circle').attr('stroke', 'black');
-    //   svg.append("text")
-    //     .attr("id", "tooltip")
-    //     .attr("x", event.pageX)
-    //     .attr("y", event.pageY - 10)
-    //     .attr("text-anchor", "middle")
-    //     .text(`${d.data.id}: ${d.data.value}`);
-    // })
-    // .on("mouseout", function() {
-    //   d3.select(this).select('circle').attr('stroke', null);
-    //   d3.select("#tooltip").remove();
-    // });
   }
 
 
