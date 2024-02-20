@@ -44,6 +44,12 @@
         #clear {
             clear: both;
         }
+
+        #writeup{
+            width:1100px;
+            margin: auto;
+            font-size: 12pt;
+        }
     
 
     }
@@ -55,6 +61,7 @@
 body {
     font-family:'League Spartan', sans-serif;
     padding: 20px;
+    
 }
 
 select {

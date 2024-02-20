@@ -104,6 +104,7 @@ function drawHistogram(binCounts) {
         .padding(barPadding);
 
     // Create the y scale
+    
     const y = d3.scaleLinear()
         .range([height, 0])
         .domain([0, d3.max(binCounts)]);
@@ -225,55 +226,80 @@ function drawBubbleChart(jobCounts) {
   
   
     // Place each node (leaf) according to the layout’s x and y values
-    const node = svg.selectAll("g")
-      .data(root.leaves())
-      .enter();
-
-    // add a filled circle for each node
-    node.append("circle") 
-        .attr("class", "circle")
-        .attr("r", function(d){ return d.r; })
-        .attr("cx", function(d){ return d.x; })
-        .attr("cy", function(d){ return d.y; })
-        .attr("fill-opacity", 0.7)
-        .attr("fill", d => colorScale(d.data.id))
-        .attr("r", d => d.r);
-
-    // Add labels to each node, scaling the font size
-    node.append("text") 
-        .attr("x", function(d) {
-            return d.x;
-          })
-        .attr("y", function(d, i, nodes) {
-            return d.y + 4;
-          })
-        .attr("text-anchor", "middle")
-        .attr("font-size", function(d, i, nodes) {
-            if (d.r <=26){
-                return 0; // don't show text for very small bubbles
-            }
-            else {
-                return Math.max(10, d.r / 8);
-            }})
-        .text(function(d) {
-            return d.data["id"];
-          })
-        .style("fill", "#27323F")
-        .each(wrap) // Wrap text to avoid spilling over the bubble
-      .on("mouseover", function(d){ // Tooltips
-            d3.select(this).style('font-weight', "bold"); // bold on mouseover
-
-            // show job category on hover for small bubbles? something is wrong w the if statement
-            if (d3.select("circle").r <=26){ 
-                d3.select(this).attr('font-size', 10);
-            }
-        })
-      .on("mouseout", function(d){
-            d3.select(this).style('font-weight', "normal"); // return to normal on mouseout
-
-      });
-
+const node = svg.selectAll("g")
+.data(root.leaves())
+.enter()
+.append("g") // Group for each node
+.on("mouseover", function(d) {
+  d3.select(this)
+    .selectAll(".circle") // Select all circles within the group
+    .transition().duration(200)
+    .attr("fill-opacity", 0.7); // Change opacity on mouseover
   
+  d3.select(this)
+    .selectAll("text") // Select all text elements within the group
+    .style("font-weight", "bold"); // Change text color on mouseover
+})
+.on("mouseout", function(d) {
+  d3.select(this)
+    .selectAll(".circle") // Select all circles within the group
+    .transition().duration(200)
+    .attr("fill-opacity", 0.7); // Reset opacity on mouseout
+  
+  d3.select(this)
+    .selectAll("text") // Select all text elements within the group
+    .style("font-weight", "normal"); // Reset text color on mouseout
+});
+
+// Add a filled circle for each node
+node.append("circle")
+  .attr("class", "circle")
+  .attr("r", function(d){ return d.r; })
+  .attr("cx", function(d){ return d.x; })
+  .attr("cy", function(d){ return d.y; })
+  .attr("fill-opacity", 0.7)
+  .attr("fill", d => colorScale(d.data.id))
+  .attr("r", d => d.r)
+  .on("mouseover", function(d) {
+    tooltip.transition().duration(200).style("opacity", 0.9);
+    tooltip.html(`${d.data.id}: ${d.data.value}`)
+      .style("left", (d3.event.pageX) + "px")
+      .style("top", (d3.event.pageY - 28) + "px");
+  })
+  .on("mouseout", function(d) {
+    tooltip.transition().duration(500).style("opacity", 0);
+  });
+
+// Add labels to each node, scaling the font size
+node.append("text")
+  .attr("x", function(d) {
+      return d.x;
+  })
+  .attr("y", function(d, i, nodes) {
+      return d.y + 4;
+  })
+  .attr("text-anchor", "middle")
+  .attr("font-size", function(d, i, nodes) {
+      if (d.r <=26){
+          return 0; // don't show text for very small bubbles
+      }
+      else {
+          return Math.max(10, d.r / 8);
+      }
+  })
+  .text(function(d) {
+      return d.data["id"];
+  })
+  .style("fill", "#27323F")
+  .each(wrap); // Apply the wrap function
+
+// Create a tooltip element
+const tooltip = d3.select("body")
+  .append("div")
+  .attr("class", "tooltip")
+  .style("opacity", 0);
+
+
     function wrap(d){
         var text = d3.select(this),
         width = d.r * 2,
@@ -297,37 +323,26 @@ function drawBubbleChart(jobCounts) {
     };
 
 
-
-    // Add tooltip functionality on mouseover
-    // node.on("mouseover", function(event, d) {
-    //   d3.select(this).select('circle').attr('stroke', 'black');
-    //   svg.append("text")
-    //     .attr("id", "tooltip")
-    //     .attr("x", event.pageX)
-    //     .attr("y", event.pageY - 10)
-    //     .attr("text-anchor", "middle")
-    //     .text(`${d.data.id}: ${d.data.value}`);
-    // })
-    // .on("mouseout", function() {
-    //   d3.select(this).select('circle').attr('stroke', null);
-    //   d3.select("#tooltip").remove();
-    // });
   }
 
 
 
-function drawPieChart(data) {
+  function drawPieChart(data) {
     const svg = d3.select('#pieChart');
     const width = +svg.attr('width');
     const height = +svg.attr('height');
     const radius = Math.min(width, height) / 2;
+    const innerRadius = radius * 0.6; // Set inner radius for the donut chart
+
+    // Clear any previous SVG contents
+    svg.selectAll("*").remove();
 
     // Create a pie chart layout
     const pie = d3.pie().value(d => d.value);
 
     // Create an arc generator
     const arc = d3.arc()
-        .innerRadius(0)
+        .innerRadius(innerRadius)
         .outerRadius(radius);
 
     // Generate pie chart data
@@ -342,7 +357,7 @@ function drawPieChart(data) {
         .data(pieData)
         .enter().append('g')
             .attr('class', 'arc')
-            .style('opacity', 1) // Set initial opacity to 1
+            .style('opacity', 1); // Set initial opacity to 1
 
     arcs.append('path')
         .attr('d', arc)
@@ -360,8 +375,14 @@ function drawPieChart(data) {
             // Show tooltip
             const tooltip = d3.select('#tooltip');
             tooltip.transition()
-                .duration(200)
-                .style('opacity', 0.9);
+            .duration(200)
+            .style('opacity', 0.9)
+            .style('position', 'absolute')
+            .style('background-color', 'yellow')
+            .style('padding', '8px')
+            .style('border', '1px solid #ccc')
+            .style('border-radius', '5px')
+            .style('font-size', '12px');
 
             // Set tooltip content
             tooltip.html(`${d.data.category}: ${d.data.value}`)
@@ -389,15 +410,61 @@ function drawPieChart(data) {
                 .style('opacity', 0);
         });
 
-    // Add category names and percentages as text labels for larger slices
-    arcs.filter(d => d.endAngle - d.startAngle > 0.2) // Only show labels for slices larger than 0.2 radians
-        .append('text')
-            .attr('transform', d => `translate(${arc.centroid(d)}) rotate(${(d.startAngle + d.endAngle) * 90 / Math.PI - 90})`)
-            .attr('dy', '0.35em') // Adjust vertical alignment
-            .attr('text-anchor', 'middle')
-            .text(d => `${d.data.category}: ${d3.format('.1%')(d.data.value / d3.sum(Object.values(data)))}`);
+    // Add text labels above the arcs
+    const labelArc = d3.arc()
+        .innerRadius(radius * 0.85)
+        .outerRadius(radius * 0.85);
+
+    const text = chart.selectAll('.label')
+    .data(pieData)
+    .enter().append('text')
+        .attr('class', 'label')
+        .attr('transform', function(d) {
+            const c = labelArc.centroid(d);
+            return `translate(${c[0] * 1.2},${c[1] * 1.2})`;
+        })
+        .attr('dy', '0.35em') // Adjust vertical alignment
+        .attr('text-anchor', d => (d.startAngle + d.endAngle) / 2 < Math.PI ? 'start' : 'end')
+        .style('font-size', '16px')
+        .text(d => `${d.data.category}: ${d3.format('.1%')(d.data.value / d3.sum(Object.values(data)))}`);
+
+
+    const lines = arcs.append('line')
+    .attr('class', 'line')
+    .attr('x1', function(d) {
+        const c = labelArc.centroid(d);
+        return c[0] * 1.2;
+    })
+    .attr('y1', function(d) {
+        const c = labelArc.centroid(d);
+        return c[1] * 1.2;
+    })
+    .attr('x2', function(d) {
+        const c = arc.centroid(d);
+        return c[0];
+    })
+    .attr('y2', function(d) {
+        const c = arc.centroid(d);
+        return c[1];
+    })
+    .attr('stroke', 'black')
+    .attr('stroke-width', 1)
+    .attr('fill', 'none');
+    // Add a center circle with the total number
+    chart.append('circle')
+        .attr('cx', 0)
+        .attr('cy', 0)
+        .attr('r', innerRadius)
+        .attr('fill', '#ffffff') // Set fill color for the center circle
+
+    // Add text for the total number in the center circle
+    chart.append('text')
+        .attr('text-anchor', 'middle')
+        .attr('dy', '0.35em')
+        .style('font-size', '30px')
+        .text(`Total number: ${d3.sum(Object.values(data))}`);
 }
-  
+
 
 
 function updateVisualization() {
