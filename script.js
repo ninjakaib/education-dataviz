@@ -121,22 +121,38 @@ function drawHistogram(binCounts) {
             .attr("fill", "#526D82")
             .on("mouseover", function(event, d) {
                 // Show the count when hovering
-
                 d3.select(this).attr('fill', '#27374D');
-                const xPos = x.bandwidth() / 2 + parseFloat(d3.select(this).attr("x"));
-                const yPos = y(d);
-                chart.append("text")
-                    .attr("id", "tooltip")
-                    .attr("x", xPos)
-                    .attr("y", yPos - 10)
-                    .attr("text-anchor", "middle")
-                    .style("font-size", "12px")
-                    .text(`Count: ${d}`);
+                const tooltip = d3.select('#tooltip');
+                tooltip.transition()
+                .duration(200)
+                .style('opacity', 0.9)
+                .style('position', 'absolute')
+                .style('background-color', 'yellow')
+                .style('padding', '8px')
+                .style('border', '1px solid #ccc')
+                .style('border-radius', '5px')
+                .style('font-size', '12px');
+    
+                // Set tooltip content
+                tooltip.html(`Count: ${d}`)
+                    .style('left', (event.pageX + 10) + 'px')
+                    .style('top', (event.pageY - 20) + 'px');
+            })
+            .on('mousemove', function (event) {
+                // Move tooltip smoothly with the mouse
+                d3.select('#tooltip')
+                    .style('left', (event.pageX + 10) + 'px')
+                    .style('top', (event.pageY - 20) + 'px');
+            
+                
             })
             .on("mouseout", function() {
                 // Revert the bar color and remove the tooltip
                 d3.select(this).attr('fill', '#526D82');
-                chart.select("#tooltip").remove();
+                d3.select('#tooltip')
+                .transition()
+                .duration(500)
+                .style('opacity', 0);
             });
 
     // Add the x-axis
