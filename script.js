@@ -226,7 +226,6 @@ function drawBubbleChart(jobCounts) {
   
   
     // Place each node (leaf) according to the layout’s x and y values
-<<<<<<< HEAD
 const node = svg.selectAll("g")
 .data(root.leaves())
 .enter()
@@ -246,7 +245,6 @@ const node = svg.selectAll("g")
     .selectAll(".circle") // Select all circles within the group
     .transition().duration(200)
     .attr("fill-opacity", 0.7); // Reset opacity on mouseout
-=======
     const node = svg.selectAll("g")
       .data(root.leaves())
       .enter();
@@ -295,7 +293,6 @@ const node = svg.selectAll("g")
 
       });
 
->>>>>>> 7d8537b36bc7288818d94a3c0dab2bde725149bc
   
   d3.select(this)
     .selectAll("text") // Select all text elements within the group
@@ -311,12 +308,12 @@ node.append("circle")
   .attr("fill-opacity", 0.7)
   .attr("fill", d => colorScale(d.data.id))
   .attr("r", d => d.r)
-  .on("mouseover", function(d) {
-    tooltip.transition().duration(200).style("opacity", 0.9);
-    tooltip.html(`${d.data.id}: ${d.data.value}`)
-      .style("left", (d3.event.pageX) + "px")
-      .style("top", (d3.event.pageY - 28) + "px");
-  })
+//   .on("mouseover", function(d) {
+//     tooltip.transition().duration(200).style("opacity", 0.9);
+//     tooltip.html(`${d.data.id}: ${d.data.value}`)
+//       .style("left", (d3.event.pageX) + "px")
+//       .style("top", (d3.event.pageY - 28) + "px");
+//   })
   .on("mouseout", function(d) {
     tooltip.transition().duration(500).style("opacity", 0);
   });
@@ -374,24 +371,6 @@ const tooltip = d3.select("body")
     };
 
 
-<<<<<<< HEAD
-=======
-
-    // Add tooltip functionality on mouseover
-    // node.on("mouseover", function(event, d) {
-    //   d3.select(this).select('circle').attr('stroke', 'black');
-    //   svg.append("text")
-    //     .attr("id", "tooltip")
-    //     .attr("x", event.pageX)
-    //     .attr("y", event.pageY - 10)
-    //     .attr("text-anchor", "middle")
-    //     .text(`${d.data.id}: ${d.data.value}`);
-    // })
-    // .on("mouseout", function() {
-    //   d3.select(this).select('circle').attr('stroke', null);
-    //   d3.select("#tooltip").remove();
-    // });
->>>>>>> 7d8537b36bc7288818d94a3c0dab2bde725149bc
   }
 
 
