@@ -127,7 +127,7 @@ function drawHistogram(binCounts) {
                 .duration(200)
                 .style('opacity', 0.9)
                 .style('position', 'absolute')
-                .style('background-color', 'yellow')
+                .style('background-color', 'white')
                 .style('padding', '8px')
                 .style('border', '1px solid #ccc')
                 .style('border-radius', '5px')
