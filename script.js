@@ -260,12 +260,12 @@ node.append("circle")
   .attr("fill-opacity", 0.7)
   .attr("fill", d => colorScale(d.data.id))
   .attr("r", d => d.r)
-  .on("mouseover", function(d) {
-    tooltip.transition().duration(200).style("opacity", 0.9);
-    tooltip.html(`${d.data.id}: ${d.data.value}`)
-      .style("left", (d3.event.pageX) + "px")
-      .style("top", (d3.event.pageY - 28) + "px");
-  })
+//   .on("mouseover", function(d) {
+//     tooltip.transition().duration(200).style("opacity", 0.9);
+//     tooltip.html(`${d.data.id}: ${d.data.value}`)
+//       .style("left", (d3.event.pageX) + "px")
+//       .style("top", (d3.event.pageY - 28) + "px");
+//   })
   .on("mouseout", function(d) {
     tooltip.transition().duration(500).style("opacity", 0);
   });
@@ -331,7 +331,7 @@ const tooltip = d3.select("body")
     const svg = d3.select('#pieChart');
     const width = +svg.attr('width');
     const height = +svg.attr('height');
-    const radius = Math.min(width, height) / 2;
+    const radius = Math.min(width-150, height-150) / 2;
     const innerRadius = radius * 0.6; // Set inner radius for the donut chart
 
     // Clear any previous SVG contents
