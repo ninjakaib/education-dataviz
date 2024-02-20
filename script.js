@@ -131,7 +131,6 @@ function drawHistogram(binCounts) {
                     .attr("y", yPos - 10)
                     .attr("text-anchor", "middle")
                     .style("font-size", "12px")
-                    // .style("fill", "#000")
                     .text(`Count: ${d}`);
             })
             .on("mouseout", function() {
@@ -199,7 +198,7 @@ function drawBubbleChart(jobCounts) {
     }));
   
     // Dimensions of the chart
-    const width = 928;
+    const width = 750;
     const height = width;
     const padding = 40;
   
@@ -227,6 +226,7 @@ function drawBubbleChart(jobCounts) {
   
   
     // Place each node (leaf) according to the layout’s x and y values
+<<<<<<< HEAD
 const node = svg.selectAll("g")
 .data(root.leaves())
 .enter()
@@ -246,6 +246,56 @@ const node = svg.selectAll("g")
     .selectAll(".circle") // Select all circles within the group
     .transition().duration(200)
     .attr("fill-opacity", 0.7); // Reset opacity on mouseout
+=======
+    const node = svg.selectAll("g")
+      .data(root.leaves())
+      .enter();
+
+    // add a filled circle for each node
+    node.append("circle") 
+        .attr("class", "circle")
+        .attr("r", function(d){ return d.r; })
+        .attr("cx", function(d){ return d.x; })
+        .attr("cy", function(d){ return d.y; })
+        .attr("fill-opacity", 0.7)
+        .attr("fill", d => colorScale(d.data.id))
+        .attr("r", d => d.r);
+
+    // Add labels to each node, scaling the font size
+    node.append("text") 
+        .attr("x", function(d) {
+            return d.x;
+          })
+        .attr("y", function(d, i, nodes) {
+            return d.y + 4;
+          })
+        .attr("text-anchor", "middle")
+        .attr("font-size", function(d, i, nodes) {
+            if (d.r <=26){
+                return 0; // don't show text for very small bubbles
+            }
+            else {
+                return Math.max(10, d.r / 8);
+            }})
+        .text(function(d) {
+            return d.data["id"];
+          })
+        .style("fill", "#27323F")
+        .each(wrap) // Wrap text to avoid spilling over the bubble
+      .on("mouseover", function(d){ // Tooltips
+            d3.select(this).style('font-weight', "bold"); // bold on mouseover
+
+            // show job category on hover for small bubbles? something is wrong w the if statement
+            if (d3.select("circle").r <=26){ 
+                d3.select(this).attr('font-size', 10);
+            }
+        })
+      .on("mouseout", function(d){
+            d3.select(this).style('font-weight', "normal"); // return to normal on mouseout
+
+      });
+
+>>>>>>> 7d8537b36bc7288818d94a3c0dab2bde725149bc
   
   d3.select(this)
     .selectAll("text") // Select all text elements within the group
@@ -324,6 +374,24 @@ const tooltip = d3.select("body")
     };
 
 
+<<<<<<< HEAD
+=======
+
+    // Add tooltip functionality on mouseover
+    // node.on("mouseover", function(event, d) {
+    //   d3.select(this).select('circle').attr('stroke', 'black');
+    //   svg.append("text")
+    //     .attr("id", "tooltip")
+    //     .attr("x", event.pageX)
+    //     .attr("y", event.pageY - 10)
+    //     .attr("text-anchor", "middle")
+    //     .text(`${d.data.id}: ${d.data.value}`);
+    // })
+    // .on("mouseout", function() {
+    //   d3.select(this).select('circle').attr('stroke', null);
+    //   d3.select("#tooltip").remove();
+    // });
+>>>>>>> 7d8537b36bc7288818d94a3c0dab2bde725149bc
   }
 
 
@@ -362,7 +430,7 @@ const tooltip = d3.select("body")
 
     arcs.append('path')
         .attr('d', arc)
-        .attr('fill', (d, i) => ["#3a5273", "#3e7275", "#93aa88"][i])
+        .attr('fill', (d, i) => ["#526D82", "#3e7275", "#93aa88"][i])
         .attr('stroke', "#27323F") // Set initial stroke color to black
         .attr('stroke-width', 2) // Set initial stroke width
         .on('mouseover', function (event, d) {

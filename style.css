@@ -23,8 +23,32 @@
     body {
         background-color:#DDE6ED;
         padding: 20px;
+
+        #container {
+            width: 1200px;
+            
+            margin: auto;
+        }
+        #first {
+            width: 800px;
+            float: left;
+            height: 300px;
+            
+        }
+        #second {
+            width: 400px;
+            float: left;
+            height: 300px;
+           
+        }
+        #clear {
+            clear: both;
+        }
+    
+
     }
 
+    
 
 
 
