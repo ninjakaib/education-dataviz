@@ -238,7 +238,7 @@ const node = svg.selectAll("g")
   
   d3.select(this)
     .selectAll("text") // Select all text elements within the group
-    .style("font-weight", "bold"); // Change text color on mouseover
+    .style("font-weight", "bold"); // Change text weight on mouseover
 })
 .on("mouseout", function(d) {
   d3.select(this)
@@ -248,7 +248,7 @@ const node = svg.selectAll("g")
   
   d3.select(this)
     .selectAll("text") // Select all text elements within the group
-    .style("font-weight", "normal"); // Reset text color on mouseout
+    .style("font-weight", "normal"); // Reset text weight on mouseout
 });
 
 // Add a filled circle for each node
@@ -331,7 +331,7 @@ const tooltip = d3.select("body")
     const svg = d3.select('#pieChart');
     const width = +svg.attr('width');
     const height = +svg.attr('height');
-    const radius = Math.min(width-150, height-150) / 2;
+    const radius = Math.min(width-250, height-250) / 2;
     const innerRadius = radius * 0.6; // Set inner radius for the donut chart
 
     // Clear any previous SVG contents
@@ -376,9 +376,9 @@ const tooltip = d3.select("body")
             const tooltip = d3.select('#tooltip');
             tooltip.transition()
             .duration(200)
-            .style('opacity', 0.9)
+            .style('opacity', 0.8)
             .style('position', 'absolute')
-            .style('background-color', 'yellow')
+            .style('background-color', 'white')
             .style('padding', '8px')
             .style('border', '1px solid #ccc')
             .style('border-radius', '5px')
@@ -423,7 +423,7 @@ const tooltip = d3.select("body")
             const c = labelArc.centroid(d);
             return `translate(${c[0] * 1.2},${c[1] * 1.2})`;
         })
-        .attr('dy', '0.35em') // Adjust vertical alignment
+        .attr('dy', '0.3em') // Adjust vertical alignment
         .attr('text-anchor', d => (d.startAngle + d.endAngle) / 2 < Math.PI ? 'start' : 'end')
         .style('font-size', '16px')
         .text(d => `${d.data.category}: ${d3.format('.1%')(d.data.value / d3.sum(Object.values(data)))}`);
@@ -441,11 +441,11 @@ const tooltip = d3.select("body")
     })
     .attr('x2', function(d) {
         const c = arc.centroid(d);
-        return c[0];
+        return c[0]+4;
     })
     .attr('y2', function(d) {
         const c = arc.centroid(d);
-        return c[1];
+        return c[1]+4;
     })
     .attr('stroke', 'black')
     .attr('stroke-width', 1)
@@ -455,13 +455,13 @@ const tooltip = d3.select("body")
         .attr('cx', 0)
         .attr('cy', 0)
         .attr('r', innerRadius)
-        .attr('fill', '#ffffff') // Set fill color for the center circle
+        .attr('fill', "#DDE6ED") // Set fill color for the center circle
 
     // Add text for the total number in the center circle
     chart.append('text')
         .attr('text-anchor', 'middle')
         .attr('dy', '0.35em')
-        .style('font-size', '30px')
+        .style('font-size', '20px')
         .text(`Total number: ${d3.sum(Object.values(data))}`);
 }
 
