@@ -170,14 +170,37 @@ function drawHistogram(binCounts) {
         .text("Count");
 }
 
-function calculateJobCounts(filteredData) {
-    let jobCounts = {};
-    filteredData.forEach(d => {
-        if (d.job != null) {
-            jobCounts[d.job] = (jobCounts[d.job] || 0) + 1;
-        }
+function calculateJobStats(filteredData) {
+    const jobStats = {};
+  
+    // Iterate through the dataset
+    filteredData.forEach(entry => {
+        
+      const {job, salary} = entry;
+
+    if(job!=null){
+      // If the job doesn't exist in the stats object, initialize it
+      if (!jobStats[job]) {
+        jobStats[job] = {
+          count: 0,
+          totalSalary: 0
+        };
+      }
+  
+      // Increment the count and add the salary to the total for the job
+      jobStats[job].count++;
+      jobStats[job].totalSalary += salary;
+    }
     });
-    return jobCounts;
+  
+    // Calculate the mean salary for each job
+    for (let job in jobStats) {
+      const { count, totalSalary } = jobStats[job];
+      jobStats[job].meanSalary = totalSalary / count;
+    }
+  
+    return jobStats;
+
 }
 
 function calculateEmployedCounts(filteredData) {
@@ -190,11 +213,12 @@ function calculateEmployedCounts(filteredData) {
     return employedStatus;
 }
 
-function drawBubbleChart(jobCounts) {
-    // Convert jobCounts object to array format suitable for D3
-    const data = Object.keys(jobCounts).map((job, index) => ({
+function drawBubbleChart(jobStats) {
+    // Convert jobStats object to array format suitable for D3
+    const data = Object.keys(jobStats).map((job, index) => ({
       id: job,
-      value: jobCounts[job]
+      value: jobStats[job].count,
+      salary: jobStats[job].meanSalary
     }));
   
     // Dimensions of the chart
@@ -231,14 +255,12 @@ const node = svg.selectAll("g")
 .enter()
 .append("g") // Group for each node
 .on("mouseover", function(d) {
-  d3.select(this)
-    .selectAll(".circle") // Select all circles within the group
-    .transition().duration(200)
-    .attr("fill-opacity", 0.7); // Change opacity on mouseover
   
   d3.select(this)
     .selectAll("text") // Select all text elements within the group
     .style("font-weight", "bold"); // Change text weight on mouseover
+
+
 })
 .on("mouseout", function(d) {
   d3.select(this)
@@ -266,9 +288,9 @@ node.append("circle")
 //       .style("left", (d3.event.pageX) + "px")
 //       .style("top", (d3.event.pageY - 28) + "px");
 //   })
-  .on("mouseout", function(d) {
-    tooltip.transition().duration(500).style("opacity", 0);
-  });
+//   .on("mouseout", function(d) {
+//     tooltip.transition().duration(500).style("opacity", 0);
+//   });
 
 // Add labels to each node, scaling the font size
 node.append("text")
@@ -276,9 +298,8 @@ node.append("text")
       return d.x;
   })
   .attr("y", function(d, i, nodes) {
-      return d.y + 4;
+      return (d.y);
   })
-  .attr("text-anchor", "middle")
   .attr("font-size", function(d, i, nodes) {
       if (d.r <=26){
           return 0; // don't show text for very small bubbles
@@ -310,7 +331,7 @@ const tooltip = d3.select("body")
         line = [],
         lineNumber = 0,
         lineHeight = 1.1,
-        tspan = text.text(null).append("tspan").attr("x", x).attr("y", y);
+        tspan = text.text(null).append("tspan").attr("x", x).attr("y", y+1);
         while (word = words.pop()) {
         line.push(word);
         tspan.text(line.join(" "));
@@ -382,6 +403,7 @@ const tooltip = d3.select("body")
             .style('padding', '8px')
             .style('border', '1px solid #ccc')
             .style('border-radius', '5px')
+            .style("font-family", 'League Spartan')
             .style('font-size', '12px');
 
             // Set tooltip content
@@ -425,7 +447,8 @@ const tooltip = d3.select("body")
         })
         .attr('dy', '0.3em') // Adjust vertical alignment
         .attr('text-anchor', d => (d.startAngle + d.endAngle) / 2 < Math.PI ? 'start' : 'end')
-        .style('font-size', '16px')
+        .style('font-size', '14px')
+        .style("font-family", "Libre Baskerville")
         .text(d => `${d.data.category}: ${d3.format('.1%')(d.data.value / d3.sum(Object.values(data)))}`);
 
 
@@ -461,7 +484,7 @@ const tooltip = d3.select("body")
     chart.append('text')
         .attr('text-anchor', 'middle')
         .attr('dy', '0.35em')
-        .style('font-size', '20px')
+        .style('font-size', '17px')
         .text(`Total number: ${d3.sum(Object.values(data))}`);
 }
 
@@ -497,10 +520,10 @@ function updateVisualization() {
     // Now pass these binCounts to a function that draws the histogram
     drawHistogram(binCounts);
 
-    const jobCounts = calculateJobCounts(filteredData);
+    const jobStats = calculateJobStats(filteredData);
 
-    // Now pass these jobCounts to a function that draws the bubble chart
-    drawBubbleChart(jobCounts);
+    // Now pass these jobStats to a function that draws the bubble chart
+    drawBubbleChart(jobStats);
 
     const employeeCounts = calculateEmployedCounts(filteredData);
     console.log(employeeCounts);
